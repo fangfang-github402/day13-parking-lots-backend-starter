@@ -4,6 +4,7 @@ import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 import org.afs.pakinglot.domain.strategies.AvailableRateStrategy;
 import org.afs.pakinglot.domain.strategies.MaxAvailableStrategy;
 import org.afs.pakinglot.domain.strategies.SequentiallyStrategy;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
 //Standard parking strategy
 //Smart parking strategy
 //Super Smart parking strategy To optimize management and streamline operations, I need an application that assists me in visualizing and efficiently managing
+@Component
 public class ParkingLotManager {
     private List<ParkingLot> parkingLots;
     private List<ParkingBoy> parkingBoys;
@@ -42,19 +44,27 @@ public class ParkingLotManager {
         return parkingLots;
     }
 
-    public Ticket parkCar(Car car, String parkingBoyType) {
+    public Ticket parkCar(String plateNumber, String parkingBoyType) {
         ParkingBoy parkingBoy = parkingBoyMap.get(parkingBoyType);
         if (parkingBoy == null) {
             throw new IllegalArgumentException("Invalid parking boy type");
         }
+        Car car = new Car(plateNumber);
         return parkingBoy.park(car);
     }
 
-    public Car fetchCar(Ticket ticket) {
+    public Car fetchCar(String plateNumber) {
         for (ParkingBoy parkingBoy : parkingBoys) {
-            try {
-                return parkingBoy.fetch(ticket);
-            } catch (UnrecognizedTicketException e) {
+            for (ParkingLot parkingLot : parkingBoy.parkingLots) {
+                for (Ticket ticket : parkingLot.getTickets()) {
+                    if (ticket.plateNumber().equals(plateNumber)) {
+                        try {
+                            return parkingBoy.fetch(ticket);
+                        } catch (UnrecognizedTicketException e) {
+                            // Continue to the next parking boy
+                        }
+                    }
+                }
             }
         }
         throw new UnrecognizedTicketException();
