@@ -37,7 +37,7 @@ public class ParkingLotManager {
         parkingBoyMap = new HashMap<>();
         parkingBoyMap.put("Standard", standardParkingBoy);
         parkingBoyMap.put("Smart", smartParkingBoy);
-        parkingBoyMap.put("SuperSmart", superSmartParkingBoy);
+        parkingBoyMap.put("Super Smart", superSmartParkingBoy);
     }
 
     public List<ParkingLot> getParkingLots() {
