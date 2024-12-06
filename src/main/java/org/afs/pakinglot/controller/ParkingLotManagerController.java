@@ -1,8 +1,9 @@
 package org.afs.pakinglot.controller;
 
 import org.afs.pakinglot.domain.Car;
-import org.afs.pakinglot.domain.ParkingLot;
 import org.afs.pakinglot.domain.Ticket;
+import org.afs.pakinglot.dto.ParkCarDto;
+import org.afs.pakinglot.dto.ParkingLotDto;
 import org.afs.pakinglot.service.ParkingLotManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +22,17 @@ public class ParkingLotManagerController {
         this.parkingLotManagerService = parkingLotManagerService;
     }
 
-    @GetMapping("/lots")
-    public ResponseEntity<List<ParkingLot>> getParkingLots() {
-        List<ParkingLot> parkingLots = parkingLotManagerService.getParkingLots();
-        return ResponseEntity.ok(parkingLots);
-    }
+@GetMapping("/lots")
+public ResponseEntity<List<ParkingLotDto>> getParkingLots() {
+    List<ParkingLotDto> parkingLots = parkingLotManagerService.getParkingLots();
+    return ResponseEntity.ok(parkingLots);
+}
 
-    @PostMapping("/park")
-    public ResponseEntity<Ticket> parkCar(@RequestParam String plateNumber, @RequestParam String parkingBoyType) {
-        Ticket ticket = parkingLotManagerService.parkCar(plateNumber, parkingBoyType);
-        return ResponseEntity.ok(ticket);
-    }
+@PostMapping("/park")
+public ResponseEntity<Ticket> parkCar(@RequestBody ParkCarDto parkCarDto) {
+    Ticket ticket = parkingLotManagerService.parkCar(parkCarDto.getPlateNumber(), parkCarDto.getParkingBoyType());
+    return ResponseEntity.ok(ticket);
+}
 
     @GetMapping("/fetch")
     public ResponseEntity<Car> fetchCar(@RequestParam String plateNumber) {
