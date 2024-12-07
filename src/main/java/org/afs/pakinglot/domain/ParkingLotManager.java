@@ -19,12 +19,12 @@ import java.util.Map;
 public class ParkingLotManager {
     private List<ParkingLot> parkingLots;
     private List<ParkingBoy> parkingBoys;
-    private Map<String, ParkingBoy> parkingBoyMap;
+    private Map<String, ParkingBoy> parkingBoyTypeToParkingBoyMap;
 
     public ParkingLotManager() {
-        ParkingLot plazaPark = new ParkingLot(1,"Plaza Park", 9);
-        ParkingLot cityMallGarage = new ParkingLot(2,"City Mall Garage", 12);
-        ParkingLot officeTowerParking = new ParkingLot(3,"Office Tower Parking", 9);
+        ParkingLot plazaPark = new ParkingLot(1, "Plaza Park", 9);
+        ParkingLot cityMallGarage = new ParkingLot(2, "City Mall Garage", 12);
+        ParkingLot officeTowerParking = new ParkingLot(3, "Office Tower Parking", 9);
 
         parkingLots = Arrays.asList(plazaPark, cityMallGarage, officeTowerParking);
 
@@ -32,12 +32,10 @@ public class ParkingLotManager {
         ParkingBoy smartParkingBoy = new ParkingBoy(parkingLots, new MaxAvailableStrategy());
         ParkingBoy superSmartParkingBoy = new ParkingBoy(parkingLots, new AvailableRateStrategy());
 
-        parkingBoys = Arrays.asList(standardParkingBoy, smartParkingBoy, superSmartParkingBoy);
-
-        parkingBoyMap = new HashMap<>();
-        parkingBoyMap.put("Standard", standardParkingBoy);
-        parkingBoyMap.put("Smart", smartParkingBoy);
-        parkingBoyMap.put("Super Smart", superSmartParkingBoy);
+        parkingBoyTypeToParkingBoyMap = new HashMap<>();
+        parkingBoyTypeToParkingBoyMap.put("Standard", standardParkingBoy);
+        parkingBoyTypeToParkingBoyMap.put("Smart", smartParkingBoy);
+        parkingBoyTypeToParkingBoyMap.put("Super Smart", superSmartParkingBoy);
     }
 
     public List<ParkingLot> getParkingLots() {
@@ -45,27 +43,24 @@ public class ParkingLotManager {
     }
 
     public Ticket parkCar(String plateNumber, String parkingBoyType) {
-        ParkingBoy parkingBoy = parkingBoyMap.get(parkingBoyType);
+        ParkingBoy parkingBoy = parkingBoyTypeToParkingBoyMap.get(parkingBoyType);
         if (parkingBoy == null) {
             throw new IllegalArgumentException("Invalid parking boy type");
+        }
+        if (!plateNumber.matches("^[A-Z]{2}-\\d{4}$")) {
+            throw new IllegalArgumentException("Invalid plate number format");
         }
         Car car = new Car(plateNumber);
         return parkingBoy.park(car);
     }
 
     public Car fetchCar(String plateNumber) {
-        for (ParkingBoy parkingBoy : parkingBoys) {
-            for (ParkingLot parkingLot : parkingBoy.parkingLots) {
-                for (Ticket ticket : parkingLot.getTickets()) {
-                    if (ticket.plateNumber().equals(plateNumber)) {
-                        try {
-                            return parkingBoy.fetch(ticket);
-                        } catch (UnrecognizedTicketException e) {
-                            // Continue to the next parking boy
-                        }
-                    }
-                }
-            }
+        for (ParkingLot parkingLot : parkingLots) {
+            Ticket ticket = parkingLot.getTickets().stream()
+                    .filter(currentTicket -> currentTicket.plateNumber().equals(plateNumber))
+                    .findFirst()
+                    .orElseThrow(UnrecognizedTicketException::new);
+            return parkingLot.fetch(ticket);
         }
         throw new UnrecognizedTicketException();
     }
