@@ -1,12 +1,12 @@
 package org.afs.pakinglot.domain;
 
 
+import org.afs.pakinglot.domain.exception.NoAvailablePositionException;
+import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.afs.pakinglot.domain.exception.NoAvailablePositionException;
-import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 
 public class ParkingLot {
     private int id;
@@ -59,7 +59,6 @@ public class ParkingLot {
         if (!tickets.containsKey(ticket)) {
             throw new UnrecognizedTicketException();
         }
-
         return tickets.remove(ticket);
     }
 
