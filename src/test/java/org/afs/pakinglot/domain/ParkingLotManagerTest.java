@@ -1,6 +1,9 @@
 package org.afs.pakinglot.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.afs.pakinglot.domain.exception.NoAvailablePositionException;
+import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,69 +19,79 @@ class ParkingLotManagerTest {
     @BeforeEach
     void setUp() {
         parkingLotManager = new ParkingLotManager();
-        plateNumber = "ABC-123";
+        plateNumber = "AB-1723";
     }
 
     @Test
-    void shouldParkCarWhenUsingStandardParkingBoyGivenPlateNumber() {
-        // Act
+    void should_return_ticket_when_park_given_plate_number_and_standard_parking_boy() {
+        // Given
+        // When
         Ticket ticket = parkingLotManager.parkCar(plateNumber, "Standard");
-
-        // Assert
+        // Then
         assertNotNull(ticket);
     }
 
     @Test
-    void shouldParkCarWhenUsingSmartParkingBoyGivenPlateNumber() {
-        // Act
+    void should_return_ticket_when_park_car_given_plate_number_and_smart_parking_boy() {
+        // Given
+        // When
         Ticket ticket = parkingLotManager.parkCar(plateNumber, "Smart");
-
-        // Assert
+        // Then
         assertNotNull(ticket);
     }
 
     @Test
-    void shouldParkCarWhenUsingSuperSmartParkingBoyGivenPlateNumber() {
-        // Act
-        Ticket ticket = parkingLotManager.parkCar(plateNumber, "SuperSmart");
-
-        // Assert
+    void should_return_ticket_when_park_car_given_plate_number_and_super_smart_parking_boy() {
+        // Given
+        // When
+        Ticket ticket = parkingLotManager.parkCar(plateNumber, "Super Smart");
+        // Then
         assertNotNull(ticket);
     }
 
     @Test
-    void shouldFetchCarWhenUsingStandardParkingBoyGivenValidPlateNumber() {
-        // Arrange
+    void should_return_car_when_fetch_given_valid_plate_number() {
+        // Given
         parkingLotManager.parkCar(plateNumber, "Standard");
-
-        // Act
+        // When
         Car fetchedCar = parkingLotManager.fetchCar(plateNumber);
-
-        // Assert
+        // Then
         assertEquals(new Car(plateNumber), fetchedCar);
     }
 
     @Test
-    void shouldFetchCarWhenUsingSmartParkingBoyGivenValidPlateNumber() {
-        // Arrange
-        parkingLotManager.parkCar(plateNumber, "Smart");
-
-        // Act
-        Car fetchedCar = parkingLotManager.fetchCar(plateNumber);
-
-        // Assert
-        assertEquals(new Car(plateNumber), fetchedCar);
+    void should_throw_exception_when_fetch_given_invalid_plate_number() {
+        // Given
+        parkingLotManager.parkCar(plateNumber, "Standard");
+        // When
+        // Then
+        assertThrows(UnrecognizedTicketException.class, () -> parkingLotManager.fetchCar("DEF-456"));
     }
 
     @Test
-    void shouldFetchCarWhenUsingSuperSmartParkingBoyGivenValidPlateNumber() {
-        // Arrange
-        parkingLotManager.parkCar(plateNumber, "SuperSmart");
+    void should_throw_exception_when_park_given_invalid_plate_number() {
+        // Given
+        // When
+        // Then
+        assertThrows(IllegalArgumentException.class, () -> parkingLotManager.parkCar("ABC-1234", "Standard"));
+    }
 
-        // Act
-        Car fetchedCar = parkingLotManager.fetchCar(plateNumber);
+    @Test
+    void should_throw_exception_when_park_given_invalid_parking_boy_type() {
+        // Given
+        // When
+        // Then
+        assertThrows(IllegalArgumentException.class, () -> parkingLotManager.parkCar(plateNumber, "Invalid"));
+    }
 
-        // Assert
-        assertEquals(new Car(plateNumber), fetchedCar);
+    @Test
+    void should_throw_exception_when_park_given_no_available_parking_lot() {
+        // Given
+        for(int i = 0; i < 30; i++) {
+            parkingLotManager.parkCar("AB-" + String.format("%04d", i), "Standard");
+        }
+        // When
+        // Then
+        assertThrows(NoAvailablePositionException.class, () -> parkingLotManager.parkCar(plateNumber, "Standard"));
     }
 }
