@@ -29,9 +29,12 @@ public class ParkingLotManagerService {
         return parkingLots.stream().map(parkingLot -> new ParkingLotDto(parkingLot.getName(), parkingLot.getCapacity(), parkingLot.getTickets())).collect(Collectors.toList());
     }
 
-    public Ticket parkCar(String plateNumber, String parkingBoyType) {
-        return parkingLotManager.parkCar(plateNumber, parkingBoyType);
+public Ticket parkCar(String plateNumber, String parkingBoyType) {
+    if (!plateNumber.matches("^[A-Z]{2}-\\d{4}$")) {
+        throw new IllegalArgumentException("Invalid plate number format");
     }
+    return parkingLotManager.parkCar(plateNumber, parkingBoyType);
+}
 
     public Car fetchCar(String plateNumber) {
         return parkingLotManager.fetchCar(plateNumber);
